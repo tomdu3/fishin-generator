@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oops! This was a Phishing Test.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full mx-4 text-center">
+        <div class="text-red-500 mb-6">
+            <svg class="w-20 h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Oops! You clicked a simulated phishing link.</h1>
+        <p class="text-lg text-gray-600 mb-6">
+            Don't worry, your credentials and computer are safe. This was a simulated phishing attack conducted by your security team to test our defenses.
+        </p>
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 text-left mb-6">
+            <h3 class="text-lg font-semibold text-red-800 mb-2">How could you have spotted this?</h3>
+            <ul class="list-disc pl-5 text-red-700 space-y-1">
+                <li>Check the sender's email address carefully. Was it from our domain?</li>
+                <li>Hover over links before clicking. Did the URL match where it claimed to go?</li>
+                <li>Did the email create a false sense of urgency or ask for credentials unexpectedly?</li>
+                <li>Always verify unexpected requests, especially those involving wire transfers or passwords, via a secondary channel (like a phone call).</li>
+            </ul>
+        </div>
+        <p class="text-sm text-gray-500">
+            Remember, security is everyone's responsibility. Stay vigilant!
+        </p>
+    </div>
+</body>
+</html>
