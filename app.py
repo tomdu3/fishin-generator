@@ -35,7 +35,7 @@ def manage_targets():
 
 @app.route('/targets/delete/<int:id>', methods=['POST'])
 def delete_target(id):
-    target = Target.query.get_or_404(id)
+    target = db.get_or_404(Target, id)
     # Be careful with cascades, but for simplicity here we just delete it
     db.session.delete(target)
     db.session.commit()
@@ -58,10 +58,10 @@ def new_campaign():
             db.session.add(campaign)
             db.session.commit()
 
-            template = Template.query.get(template_id)
+            template = db.session.get(Template, template_id)
             
             for t_id in target_ids:
-                target = Target.query.get(t_id)
+                target = db.session.get(Target, t_id)
                 if target:
                     # Create tracking event (Sent)
                     event = TrackingEvent(campaign_id=campaign.id, target_id=target.id, event_type='Sent')
@@ -85,7 +85,7 @@ def new_campaign():
 
 @app.route('/campaigns/<int:id>')
 def campaign_details(id):
-    campaign = Campaign.query.get_or_404(id)
+    campaign = db.get_or_404(Campaign, id)
     events = TrackingEvent.query.filter_by(campaign_id=id).order_by(TrackingEvent.timestamp.desc()).all()
     
     # Calculate stats
