@@ -40,11 +40,21 @@ def send_phishing_email(target_email, subject, html_content):
             return False
     else:
         # Dry Run Mode
+        out_dir = "dry_run_emails"
+        os.makedirs(out_dir, exist_ok=True)
+        safe_email = target_email.replace('@', '_at_')
+        filename = f"{out_dir}/{safe_email}.html"
+        
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(f"<!-- Subject: {subject} -->\n")
+            f.write(f"<!-- To: {target_email} -->\n")
+            f.write(f"<!-- From: {sender_email} -->\n<hr>\n")
+            f.write(html_content)
+            
         print("\n" + "="*50)
         print("DRY RUN MODE - NO SMTP CREDENTIALS CONFIGURED")
-        print(f"To: {target_email}")
-        print(f"From: {sender_email}")
-        print(f"Subject: {subject}")
+        print(f"Email HTML saved for previewing to: {filename}")
+        print(f"You can open this file in your browser to view the email and click the links.")
         print("-" * 50)
         print(html_content)
         print("="*50 + "\n")
