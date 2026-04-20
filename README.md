@@ -93,6 +93,6 @@ erDiagram
 | id | Integer | Primary Key |
 | campaign_id | Integer | Foreign Key |
 | target_id | Integer | Foreign Key |
-| tracking_id | String(36) | Unique |
+| tracking_id | String(36) | Indexed |
 | event_type | String(20) | Not Null |
 | timestamp | DateTime | Not Null |
