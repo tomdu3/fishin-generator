@@ -70,7 +70,7 @@ To track if a user falls for the trap, we dynamically rewrite the links in the e
    ```
 3. Run the Flask application:
    ```bash
-   uv run python app.py
+   uv run app.py
    ```
 4. Open your browser and navigate to `http://localhost:5000`.
 
