@@ -5,7 +5,7 @@
     <!-- Add Target Form -->
     <div class="bg-white shadow rounded-lg p-6">
         <h2 class="text-lg font-medium text-gray-800 mb-4">Add New Target</h2>
-        <form action="{{ url_for('manage_targets') }}" method="POST">
+        <form hx-post="{{ url_for('manage_targets') }}" hx-target="#targets-list-container" hx-on::after-request="this.reset()">
             <div class="mb-4">
                 <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
                 <input type="text" name="name" id="name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
@@ -21,25 +21,8 @@
     </div>
 
     <!-- Targets List -->
-    <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-lg font-medium text-gray-800 mb-4">Existing Targets</h2>
-        {% if targets %}
-        <ul class="divide-y divide-gray-200">
-            {% for t in targets %}
-            <li class="py-3 flex justify-between items-center">
-                <div>
-                    <p class="text-sm font-medium text-gray-900">{{ t.name }}</p>
-                    <p class="text-sm text-gray-500">{{ t.email }}</p>
-                </div>
-                <form action="{{ url_for('delete_target', id=t.id) }}" method="POST" onsubmit="return confirm('Delete this target?');">
-                    <button type="submit" class="text-red-600 hover:text-red-900 text-sm font-medium">Delete</button>
-                </form>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p class="text-gray-500 text-sm">No targets added yet.</p>
-        {% endif %}
+    <div id="targets-list-container" class="bg-white shadow rounded-lg p-6">
+        {% include 'partials/target_list.html' %}
     </div>
 </div>
 {% endblock %}
