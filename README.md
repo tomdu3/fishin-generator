@@ -12,7 +12,7 @@ Instead of just a technical exercise, this is positioned as a **business solutio
 
 - **Backend**: Flask (Python) - Lightweight and perfect for serving the dashboard UI and handling fast API tracking endpoints.
 - **Database**: SQLite with Flask-SQLAlchemy (SQLAlchemy 2.0 API) - A robust, file-based relational database to store targets, templates, and tracking events.
-- **Frontend**: HTML + Jinja2 Templates, styled with Tailwind CSS (via CDN) for a clean, modern, and professional aesthetic.
+- **Frontend**: HTML + Jinja2 Templates, powered by **HTMX** for dynamic real-time updates without page reloads, and styled with Tailwind CSS (via CDN) for a clean, modern, and professional aesthetic.
 - **Email Delivery**: Standard Python `smtplib` + `email.mime` for generating and dispatching HTML emails, with a built-in "Dry Run" mode for safe local testing.
 
 ---
