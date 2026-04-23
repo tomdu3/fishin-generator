@@ -31,7 +31,20 @@ def manage_targets():
                 db.session.add(new_target)
                 db.session.commit()
     targets = Target.query.all()
+    if request.headers.get('HX-Request'):
+        return render_template('partials/target_list.html', targets=targets)
     return render_template('targets.html', targets=targets)
+
+@app.route('/dashboard/stats')
+def dashboard_stats():
+    campaigns = Campaign.query.all()
+    targets_count = Target.query.count()
+    return render_template('partials/dashboard_stats.html', campaigns=campaigns, targets_count=targets_count)
+
+@app.route('/dashboard/campaigns')
+def campaign_list():
+    campaigns = Campaign.query.order_by(Campaign.created_at.desc()).all()
+    return render_template('partials/campaign_list.html', campaigns=campaigns)
 
 @app.route('/targets/delete/<int:id>', methods=['POST'])
 def delete_target(id):
@@ -39,6 +52,9 @@ def delete_target(id):
     # Be careful with cascades, but for simplicity here we just delete it
     db.session.delete(target)
     db.session.commit()
+    if request.headers.get('HX-Request'):
+        targets = Target.query.all()
+        return render_template('partials/target_list.html', targets=targets)
     return redirect(url_for('manage_targets'))
 
 @app.route('/templates')
@@ -94,6 +110,19 @@ def campaign_details(id):
     clicks = sum(1 for e in events if e.event_type == 'Clicked')
     
     return render_template('campaign_details.html', campaign=campaign, events=events, sent=sent, opens=opens, clicks=clicks)
+
+@app.route('/campaigns/<int:id>/stats')
+def campaign_stats(id):
+    events = TrackingEvent.query.filter_by(campaign_id=id).all()
+    sent = sum(1 for e in events if e.event_type == 'Sent')
+    opens = sum(1 for e in events if e.event_type == 'Opened')
+    clicks = sum(1 for e in events if e.event_type == 'Clicked')
+    return render_template('partials/campaign_stats.html', sent=sent, opens=opens, clicks=clicks)
+
+@app.route('/campaigns/<int:id>/events')
+def campaign_events(id):
+    events = TrackingEvent.query.filter_by(campaign_id=id).order_by(TrackingEvent.timestamp.desc()).all()
+    return render_template('partials/event_list.html', events=events)
 
 @app.route('/track/open/<tracking_id>.gif')
 def track_open(tracking_id):
