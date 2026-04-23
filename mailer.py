@@ -46,9 +46,16 @@ def send_phishing_email(target_email, subject, html_content):
         filename = f"{out_dir}/{safe_email}.html"
         
         with open(filename, 'w', encoding='utf-8') as f:
-            f.write(f"<!-- Subject: {subject} -->\n")
-            f.write(f"<!-- To: {target_email} -->\n")
-            f.write(f"<!-- From: {sender_email} -->\n<hr>\n")
+            # Create a visible header for the simulated email
+            header_html = f"""
+<div style="font-family: sans-serif; background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+    <div style="margin-bottom: 5px;"><strong>From:</strong> {sender_email}</div>
+    <div style="margin-bottom: 5px;"><strong>To:</strong> {target_email}</div>
+    <div style="margin-bottom: 5px;"><strong>Subject:</strong> {subject}</div>
+</div>
+<hr>
+"""
+            f.write(header_html)
             f.write(html_content)
             
         print("\n" + "="*50)
