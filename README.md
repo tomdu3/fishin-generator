@@ -152,3 +152,11 @@ erDiagram
 | tracking_id | String(36) | Indexed |
 | event_type | String(20) | Not Null |
 | timestamp | DateTime | Not Null |
+
+---
+
+## 🐛 Bugs and Known Issues
+
+### Brittle Open Tracking in Full HTML Templates
+- **Issue**: Previously, the tracking pixel was simply appended to the end of the email's HTML content. While this worked for simple snippets, it resulted in invalid HTML for full documents (placing the `<img>` tag after the `</html>` closing tag), which could cause tracking to fail in strict email clients. Additionally, authors could not manually place the pixel within their templates.
+- **Solution**: The tracking mechanism now uses "Smart Insertion." It searches for a `</body>` tag and inserts the pixel immediately before it. If no body tag is found, it safely falls back to appending. Furthermore, the `{{ tracking_pixel_url }}` variable is now exposed to the Jinja context, allowing for manual placement, while built-in logic prevents duplicate pixels from being added.
