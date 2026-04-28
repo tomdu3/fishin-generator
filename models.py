@@ -24,6 +24,18 @@ class Campaign(db.Model):
 
     template = db.relationship('Template', backref=db.backref('campaigns', lazy=True))
 
+    @property
+    def sent_count(self):
+        return sum(1 for e in self.tracking_events if e.event_type == 'Sent')
+
+    @property
+    def open_count(self):
+        return sum(1 for e in self.tracking_events if e.event_type == 'Opened')
+
+    @property
+    def click_count(self):
+        return sum(1 for e in self.tracking_events if e.event_type == 'Clicked')
+
 class TrackingEvent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=False)

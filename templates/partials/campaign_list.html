@@ -4,6 +4,8 @@
         <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opens</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
         </tr>
@@ -17,6 +19,8 @@
                     {{ c.status }}
                 </span>
             </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-semibold">{{ c.open_count }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">{{ c.click_count }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <a href="{{ url_for('campaign_details', id=c.id) }}" class="text-blue-600 hover:text-blue-900">View Results</a>

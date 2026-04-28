@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Fishin' Generator 🎣{% endblock %}</title>
+    <title>{% block title %}Phishing Simulator{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
@@ -13,7 +13,7 @@
 <body class="flex h-screen bg-gray-100">
     <!-- Sidebar -->
     <div class="w-64 bg-gray-900 text-white flex flex-col">
-        <div class="p-6 text-2xl font-bold border-b border-gray-800">🎣 Fishin' Generator</div>
+        <div class="p-6 text-2xl font-bold border-b border-gray-800">🎣 PhishGen</div>
         <nav class="flex-1 p-4 space-y-2">
             <a href="{{ url_for('dashboard') }}" class="block px-4 py-2 rounded hover:bg-gray-800">Dashboard</a>
             <a href="{{ url_for('manage_targets') }}" class="block px-4 py-2 rounded hover:bg-gray-800">Targets</a>

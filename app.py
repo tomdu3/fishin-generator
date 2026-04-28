@@ -129,12 +129,20 @@ def track_open(tracking_id):
     # Transparent 1x1 GIF
     pixel_data = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
     
-    event = TrackingEvent.query.filter_by(tracking_id=tracking_id, event_type='Sent').first()
+    # Robust lookup: find ANY event with this tracking_id to get campaign/target info
+    event = TrackingEvent.query.filter_by(tracking_id=tracking_id).first()
     if event:
-        # Check if we already logged an open to prevent duplicates? For simplicity, we just log another event or update. Let's just create a new 'Opened' event.
-        open_event = TrackingEvent(campaign_id=event.campaign_id, target_id=event.target_id, tracking_id=tracking_id, event_type='Opened')
+        open_event = TrackingEvent(
+            campaign_id=event.campaign_id, 
+            target_id=event.target_id, 
+            tracking_id=tracking_id, 
+            event_type='Opened'
+        )
         db.session.add(open_event)
         db.session.commit()
+        print(f"Open tracked for target {event.target_id} in campaign {event.campaign_id}")
+    else:
+        print(f"Open tracking failed: tracking_id {tracking_id} not found")
         
     return send_file(BytesIO(pixel_data), mimetype='image/gif')
 
@@ -142,9 +150,17 @@ def track_open(tracking_id):
 def track_click(tracking_id):
     event = TrackingEvent.query.filter_by(tracking_id=tracking_id).first()
     if event:
-        click_event = TrackingEvent(campaign_id=event.campaign_id, target_id=event.target_id, tracking_id=tracking_id, event_type='Clicked')
+        click_event = TrackingEvent(
+            campaign_id=event.campaign_id, 
+            target_id=event.target_id, 
+            tracking_id=tracking_id, 
+            event_type='Clicked'
+        )
         db.session.add(click_event)
         db.session.commit()
+        print(f"Click tracked for target {event.target_id} in campaign {event.campaign_id}")
+    else:
+        print(f"Click tracking failed: tracking_id {tracking_id} not found")
         
     return render_template('phished.html')
 
