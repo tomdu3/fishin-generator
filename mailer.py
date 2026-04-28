@@ -4,14 +4,27 @@ from email.message import EmailMessage
 from jinja2 import Template
 
 def generate_email_content(template_html, tracking_url, tracking_pixel_url):
-    # Render tracking_url into the template
+    # Render tracking_url and tracking_pixel_url into the template
     jinja_template = Template(template_html)
-    rendered_html = jinja_template.render(tracking_url=tracking_url)
+    rendered_html = jinja_template.render(
+        tracking_url=tracking_url,
+        tracking_pixel_url=tracking_pixel_url
+    )
     
-    # Append tracking pixel
-    rendered_html += f'<img src="{tracking_pixel_url}" width="1" height="1" alt="" style="display:none;" />'
+    # Check if pixel is already in the rendered HTML
+    if tracking_pixel_url in rendered_html:
+        return rendered_html
+
+    # Create pixel tag
+    pixel_tag = f'<img src="{tracking_pixel_url}" width="1" height="1" alt="" style="display:none;" />'
     
-    return rendered_html
+    # Smarter insertion: before </body> if it exists, otherwise append
+    if '</body>' in rendered_html.lower():
+        # Find position before </body> (case-insensitive)
+        body_close_pos = rendered_html.lower().rfind('</body>')
+        return rendered_html[:body_close_pos] + pixel_tag + rendered_html[body_close_pos:]
+    else:
+        return rendered_html + pixel_tag
 
 def send_phishing_email(target_email, subject, html_content):
     smtp_server = os.environ.get('SMTP_SERVER')
