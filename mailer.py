@@ -4,13 +4,34 @@ from email.message import EmailMessage
 from jinja2 import Template
 
 def generate_email_content(template_html, tracking_url, tracking_pixel_url):
-    # Render tracking_url into the template
+    # 1. Render the template body with available variables
     jinja_template = Template(template_html)
-    rendered_html = jinja_template.render(tracking_url=tracking_url)
+    rendered_body = jinja_template.render(
+        tracking_url=tracking_url,
+        tracking_pixel_url=tracking_pixel_url
+    )
     
-    # Append tracking pixel
-    rendered_html += f'<img src="{tracking_pixel_url}" width="1" height="1" alt="" style="display:none;" />'
-    
+    # 2. Wrap in responsive base template
+    base_template_path = os.path.join(os.path.dirname(__file__), 'templates', 'email_base.html')
+    try:
+        with open(base_template_path, 'r', encoding='utf-8') as f:
+            base_html = f.read()
+        
+        base_jinja = Template(base_html)
+        rendered_html = base_jinja.render(content=rendered_body)
+    except Exception as e:
+        print(f"Warning: Could not load email_base.html: {e}. Using raw body.")
+        rendered_html = rendered_body
+
+    # 3. Smart Pixel Insertion (ensure it's not already there and put it before </body>)
+    if tracking_pixel_url not in rendered_html:
+        pixel_tag = f'<img src="{tracking_pixel_url}" width="1" height="1" alt="" style="display:none;" />'
+        if '</body>' in rendered_html.lower():
+            pos = rendered_html.lower().rfind('</body>')
+            rendered_html = rendered_html[:pos] + pixel_tag + rendered_html[pos:]
+        else:
+            rendered_html += pixel_tag
+            
     return rendered_html
 
 def send_phishing_email(target_email, subject, html_content):
