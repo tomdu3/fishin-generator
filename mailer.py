@@ -2,6 +2,7 @@ import os
 import smtplib
 from email.message import EmailMessage
 from jinja2 import Template
+import email.utils
 
 def generate_email_content(template_html, tracking_url, tracking_pixel_url):
     # 1. Render the template body with available variables
@@ -67,10 +68,14 @@ def send_phishing_email(target_email, subject, html_content):
         filename = f"{out_dir}/{safe_email}.html"
         
         with open(filename, 'w', encoding='utf-8') as f:
+            # Parse the sender email to get the raw address for the hover effect
+            name, addr = email.utils.parseaddr(sender_email)
+            hover_text = addr if addr else sender_email
+            
             # Create a visible header for the simulated email
             header_html = f"""
 <div style="font-family: sans-serif; background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
-    <div style="margin-bottom: 5px;"><strong>From:</strong> {sender_email}</div>
+    <div style="margin-bottom: 5px;"><strong>From:</strong> <span title="{hover_text}" style="cursor: help; border-bottom: 1px dashed #999;">{sender_email}</span></div>
     <div style="margin-bottom: 5px;"><strong>To:</strong> {target_email}</div>
     <div style="margin-bottom: 5px;"><strong>Subject:</strong> {subject}</div>
 </div>
