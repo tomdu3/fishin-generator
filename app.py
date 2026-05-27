@@ -62,6 +62,19 @@ def view_templates():
     templates = Template.query.all()
     return render_template('templates.html', templates=templates)
 
+@app.route('/campaigns/delete/<int:id>', methods=['POST'])
+def delete_campaign(id):
+    campaign = db.get_or_404(Campaign, id)
+    # Delete associated tracking events first to prevent Foreign Key constraints
+    TrackingEvent.query.filter_by(campaign_id=id).delete()
+    db.session.delete(campaign)
+    db.session.commit()
+    
+    if request.headers.get('HX-Request'):
+        campaigns = Campaign.query.order_by(Campaign.created_at.desc()).all()
+        return render_template('partials/campaign_list.html', campaigns=campaigns)
+    return redirect(url_for('dashboard'))
+
 @app.route('/campaigns/new', methods=['GET', 'POST'])
 def new_campaign():
     if request.method == 'POST':
