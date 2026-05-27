@@ -70,12 +70,17 @@ def send_phishing_email(target_email, subject, html_content):
         with open(filename, 'w', encoding='utf-8') as f:
             # Parse the sender email to get the raw address for the hover effect
             name, addr = email.utils.parseaddr(sender_email)
-            hover_text = addr if addr else sender_email
+            if name:
+                display_from = f"{name} &lt;{addr}&gt;"
+                hover_text = f"Actual Sender Address: {addr}"
+            else:
+                display_from = addr
+                hover_text = addr
             
             # Create a visible header for the simulated email
             header_html = f"""
 <div style="font-family: sans-serif; background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
-    <div style="margin-bottom: 5px;"><strong>From:</strong> <span title="{hover_text}" style="cursor: help; border-bottom: 1px dashed #999;">{sender_email}</span></div>
+    <div style="margin-bottom: 5px;"><strong>From:</strong> <span title="{hover_text}" style="cursor: help; border-bottom: 1px dashed #999;">{display_from}</span></div>
     <div style="margin-bottom: 5px;"><strong>To:</strong> {target_email}</div>
     <div style="margin-bottom: 5px;"><strong>Subject:</strong> {subject}</div>
 </div>
