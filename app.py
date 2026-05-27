@@ -97,7 +97,8 @@ def new_campaign():
 
     templates = Template.query.all()
     targets = Target.query.all()
-    return render_template('campaign_new.html', templates=templates, targets=targets)
+    selected_template_id = request.args.get('template_id', type=int)
+    return render_template('campaign_new.html', templates=templates, targets=targets, selected_template_id=selected_template_id)
 
 @app.route('/campaigns/<int:id>')
 def campaign_details(id):

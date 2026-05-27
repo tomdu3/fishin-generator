@@ -13,7 +13,7 @@
             <select name="template_id" id="template_id" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 sm:text-sm">
                 <option value="">-- Choose a template --</option>
                 {% for t in templates %}
-                <option value="{{ t.id }}">{{ t.name }}</option>
+                <option value="{{ t.id }}" {% if t.id == selected_template_id %}selected{% endif %}>{{ t.name }}</option>
                 {% endfor %}
             </select>
         </div>
