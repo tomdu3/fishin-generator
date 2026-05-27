@@ -68,11 +68,14 @@ To track if a user falls for the trap, we dynamically rewrite the links in the e
    ```bash
    uv sync
    ```
-3. Run the Flask application:
+3. Set up your environment configuration (optional):
+   - Copy the sample env file: `cp .env.sample .env`
+   - Fill in your SMTP settings. If using **Gmail**, you will need to generate a 16-character **App Password** from your [Google App Passwords account settings](https://myaccount.google.com/apppasswords) (2-Step Verification must be enabled first) and use it as `SMTP_PASS` without spaces.
+4. Run the Flask application:
    ```bash
    uv run app.py
    ```
-4. Open your browser and navigate to `http://localhost:5000`.
+5. Open your browser and navigate to `http://localhost:5000`.
 
 > [!TIP]
 > **Dry Run Mode:** By default, if no SMTP credentials are provided via a `.env` file, the simulator will automatically run in "Dry Run" mode. Instead of actually sending emails, it will save the generated HTML email into a `dry_run_emails/` folder and print the raw HTML to the terminal. You can simply double-click the saved `.html` file to view the email in your browser and test the clicking flow safely!
