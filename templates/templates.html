@@ -7,13 +7,32 @@
         cursor: default !important;
         text-decoration: none !important;
     }
+    .template-card {
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .template-card:has(.template-upper:hover) {
+        border-color: transparent !important;
+        background-image: linear-gradient(to right, #ffffff, #ffffff), linear-gradient(to right, #ec4899, #ef4444);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: 0 12px 24px -4px rgba(236, 72, 153, 0.35), 0 8px 16px -6px rgba(239, 68, 68, 0.25);
+        transform: translateY(-4px);
+    }
+    .template-card:has(.template-upper:hover) .template-heading {
+        color: #ec4899; /* pink-500 */
+    }
+    .template-heading {
+        transition: color 0.2s ease;
+    }
 </style>
 <div class="bg-white shadow rounded-lg p-6">
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
         {% for template in templates %}
-        <div class="border rounded-lg p-6 flex flex-col bg-white hover:shadow-md transition-shadow duration-200 cursor-pointer" onclick="window.location.href='{{ url_for('new_campaign', template_id=template.id) }}'">
-            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ template.name }}</h3>
-            <p class="text-lg text-gray-600 mb-4 flex-1"><strong>Subject:</strong> {{ template.subject }}</p>
+        <div class="template-card border rounded-lg p-6 flex flex-col bg-white hover:shadow-md transition-shadow duration-200 cursor-pointer" onclick="window.location.href='{{ url_for('new_campaign', template_id=template.id) }}'">
+            <div class="template-upper flex-1">
+                <h3 class="template-heading text-2xl font-bold text-gray-900 mb-2">{{ template.name }}</h3>
+                <p class="text-lg text-gray-600 mb-4"><strong>Subject:</strong> {{ template.subject }}</p>
+            </div>
             <div class="template-body bg-gray-50 p-4 rounded text-base text-gray-700 overflow-y-auto max-h-48 border leading-relaxed" onclick="event.stopPropagation();">
                 {{ template.body_html | safe }}
             </div>
