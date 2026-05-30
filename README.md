@@ -28,6 +28,8 @@ The database comes seeded with 12 foundational phishing templates designed to mi
 - **Authority**: e.g., "Executive Wire Transfer Request".
 - **Curiosity/Familiarity**: e.g., "HR Policy Document" or "Fake File Share".
 
+Each template features a customized, context-aware **Sender Display Name** stored at the template level (e.g. `"Barclays Bank Security"`, `"Zoom Support"`, or `"Human Resources"`), which dynamically pairs with your sending infrastructure to simulate high-fidelity phishing headers.
+
 ### 3. Safe Educational Landing Page
 If an employee falls for the simulation and clicks a malicious link, they are safely redirected to a local `phished.html` landing page. This page breaks the news gently and provides immediate, constructive feedback on how they could have spotted the phishing attempt (e.g., checking the sender domain, hovering over links).
 
@@ -100,6 +102,7 @@ erDiagram
     TEMPLATE {
         int id PK
         string name
+        string sender_name
         string subject
         text body_html
     }
@@ -134,6 +137,7 @@ erDiagram
 |---|---|---|
 | id | Integer | Primary Key |
 | name | String(100) | Not Null |
+| sender_name | String(100) | Nullable |
 | subject | String(200) | Not Null |
 | body_html | Text | Not Null |
 
