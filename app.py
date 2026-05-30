@@ -104,7 +104,7 @@ def new_campaign():
                     
                     # For simulating realism, we replace template variables with actual target name
                     # Note: we are just sending the rendered template, any [Service Name] etc could be parameterized in a real system.
-                    send_phishing_email(target.email, template.subject, html_content)
+                    send_phishing_email(target.email, template.subject, html_content, sender_name=template.sender_name)
                     
             return redirect(url_for('dashboard'))
 

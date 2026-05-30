@@ -35,16 +35,26 @@ def generate_email_content(template_html, tracking_url, tracking_pixel_url):
             
     return rendered_html
 
-def send_phishing_email(target_email, subject, html_content):
+def send_phishing_email(target_email, subject, html_content, sender_name=None):
     smtp_server = os.environ.get('SMTP_SERVER')
     smtp_port = int(os.environ.get('SMTP_PORT', 587))
     smtp_user = os.environ.get('SMTP_USER')
     smtp_pass = os.environ.get('SMTP_PASS')
-    sender_email = os.environ.get('SENDER_EMAIL', 'security-test@company.com')
+    
+    # SENDER_EMAIL is the actual base sender email address
+    raw_sender = os.environ.get('SENDER_EMAIL', 'security-test@company.com')
+    _, sender_addr = email.utils.parseaddr(raw_sender)
+    if not sender_addr:
+        sender_addr = raw_sender
+
+    if sender_name:
+        from_header = email.utils.formataddr((sender_name, sender_addr))
+    else:
+        from_header = raw_sender
     
     msg = EmailMessage()
     msg['Subject'] = subject
-    msg['From'] = sender_email
+    msg['From'] = from_header
     msg['To'] = target_email
     msg.set_content("Please enable HTML to view this message.")
     msg.add_alternative(html_content, subtype='html')
@@ -68,8 +78,8 @@ def send_phishing_email(target_email, subject, html_content):
         filename = f"{out_dir}/{safe_email}.html"
         
         with open(filename, 'w', encoding='utf-8') as f:
-            # Parse the sender email to get the raw address for the hover effect
-            name, addr = email.utils.parseaddr(sender_email)
+            # Parse the combined from_header to get the raw address for the hover effect
+            name, addr = email.utils.parseaddr(from_header)
             if name:
                 display_from = f"{name} &lt;{addr}&gt;"
                 hover_text = f"Actual Sender Address: {addr}"
