@@ -13,21 +13,21 @@ Under **RFC 5322 (Internet Message Format)**, the `From` header can be defined i
 
 When a mailbox provider (such as Gmail, Outlook, or Apple Mail) displays the message, it generally displays the friendly `Display Name` in the inbox user interface, rather than the raw address. 
 
-### 2. Implementation in your local configuration
-To simulate a display name (like `"Barclays Bank"` or `"IT Service Desk"`) in your testing campaigns:
+### 2. Dynamic Template-Level Implementation
+To simulate realistic phishing campaigns, different templates need to mimic different departments or organizations. We implemented template-specific display names:
 
-1. Open your local environment file: [`.env`](file:///home/tom/projects/fishin-generator/.env)
-2. Update the `SENDER_EMAIL` variable to use the double-quoted `Name <address>` format. For example:
-   ```env
-   SENDER_EMAIL="Barclays Bank <tomdcoding@gmail.com>"
-   ```
-3. When the Flask server loads, the Python mailer module (`mailer.py`) will automatically assign this full string to `msg['From']` before transmission.
+1. **Database Schema:** Added `sender_name` column to the `Template` table in [`models.py`](file:///home/tom/projects/fishin-generator/models.py).
+2. **Database Seeding:** Configured realistic sender names (e.g., `"Barclays Bank Security"`, `"Zoom Support"`, `"Human Resources"`) for each entry in the seeder.
+3. **Application logic:**
+   - [`.env`](file:///home/tom/projects/fishin-generator/.env) is kept clean and only specifies the base sending address (e.g., `SENDER_EMAIL=tomdcoding@gmail.com`).
+   - [`app.py`](file:///home/tom/projects/fishin-generator/app.py) retrieves `template.sender_name` and passes it to the mail dispatch function.
+   - [`mailer.py`](file:///home/tom/projects/fishin-generator/mailer.py) dynamically constructs the `From` header using `email.utils.formataddr((sender_name, sender_address))`.
 
-### 3. Parsing logic update (Dry Run Mode)
-The dry run renderer in `mailer.py` parses the display name using Python's standard `email.utils.parseaddr` to generate a safe browser preview that accurately represents the visual email header:
+### 3. Parsing logic (Dry Run Mode)
+The dry run renderer in `mailer.py` parses the generated `From` header containing the display name to display a realistic header:
 ```python
-# Parse the sender email to extract friendly name and raw address
-name, addr = email.utils.parseaddr(sender_email)
+# Parse the combined From header to extract friendly name and raw address
+name, addr = email.utils.parseaddr(from_header)
 if name:
     display_from = f"{name} &lt;{addr}&gt;"
     hover_text = f"Actual Sender Address: {addr}"
