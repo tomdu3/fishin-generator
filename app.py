@@ -2,6 +2,7 @@ import os
 from datetime import datetime, timezone
 from flask import Flask, render_template, request, redirect, url_for, send_file
 from models import db, Target, Template, Campaign, TrackingEvent
+from sqlalchemy.orm import joinedload
 from dotenv import load_dotenv
 from mailer import generate_email_content, send_phishing_email
 from io import BytesIO
@@ -16,9 +17,10 @@ db.init_app(app)
 
 @app.route('/')
 def dashboard():
-    campaigns = Campaign.query.order_by(Campaign.created_at.desc()).all()
+    campaigns = Campaign.query.options(joinedload(Campaign.tracking_events)).order_by(Campaign.created_at.desc()).all()
     targets_count = Target.query.count()
-    return render_template('dashboard.html', campaigns=campaigns, targets_count=targets_count)
+    clicks_count = TrackingEvent.query.filter_by(event_type='Clicked').count()
+    return render_template('dashboard.html', campaigns=campaigns, targets_count=targets_count, clicks_count=clicks_count)
 
 @app.route('/targets', methods=['GET', 'POST'])
 def manage_targets():
@@ -37,9 +39,10 @@ def manage_targets():
 
 @app.route('/dashboard/stats')
 def dashboard_stats():
-    campaigns = Campaign.query.all()
+    campaigns = Campaign.query.options(joinedload(Campaign.tracking_events)).all()
     targets_count = Target.query.count()
-    return render_template('partials/dashboard_stats.html', campaigns=campaigns, targets_count=targets_count)
+    clicks_count = TrackingEvent.query.filter_by(event_type='Clicked').count()
+    return render_template('partials/dashboard_stats.html', campaigns=campaigns, targets_count=targets_count, clicks_count=clicks_count)
 
 @app.route('/dashboard/campaigns')
 def campaign_list():
