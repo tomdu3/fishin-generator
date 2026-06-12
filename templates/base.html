@@ -4,32 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Fishin' Generator 🎣{% endblock %}</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
     </style>
 </head>
-<body class="flex h-screen bg-gray-100">
-    <!-- Sidebar -->
-    <div class="w-64 bg-gray-900 text-white flex flex-col">
-        <div class="p-6 text-2xl font-bold border-b border-gray-800">🎣 Fishin' Gen</div>
+<body class="flex flex-col md:flex-row h-screen bg-gray-100 overflow-hidden">
+    <!-- Top Nav for Mobile/Tablet -->
+    <div class="flex items-center justify-between bg-gray-900 text-white px-6 py-4 md:hidden shadow-md">
+        <div class="flex items-center space-x-3">
+            <button id="mobile-menu-btn" class="text-gray-300 hover:text-white focus:outline-none transition-colors" aria-label="Open sidebar">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <span class="text-xl font-bold tracking-tight">🎣 Fishin' Gen</span>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar Drawer -->
+    <div id="mobile-sidebar" class="relative z-50 md:hidden hidden" role="dialog" aria-modal="true">
+        <!-- Backdrop -->
+        <div id="mobile-sidebar-backdrop" class="fixed inset-0 bg-black/60 opacity-0 transition-opacity ease-out duration-300"></div>
+
+        <div class="fixed inset-0 flex">
+            <!-- Sidebar panel -->
+            <div id="mobile-sidebar-panel" class="relative flex flex-col w-64 max-w-xs bg-gray-900 text-white transition-transform ease-out duration-300 transform -translate-x-full shadow-2xl h-full">
+                <!-- Close Button Container -->
+                <div class="absolute top-4 right-4">
+                    <button id="mobile-sidebar-close" type="button" class="flex items-center justify-center h-8 w-8 rounded-full bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none transition-colors" aria-label="Close sidebar">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-6 text-2xl font-bold border-b border-gray-800 flex items-center space-x-2">
+                    <span>🎣</span> <span>Fishin' Gen</span>
+                </div>
+                
+                <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                    <a href="{{ url_for('dashboard') }}" class="block px-4 py-2 rounded-lg transition-colors {% if request.path == url_for('dashboard') %}bg-gray-800 text-white font-semibold{% else %}text-gray-400 hover:bg-gray-850 hover:text-white{% endif %}">Dashboard</a>
+                    <a href="{{ url_for('manage_targets') }}" class="block px-4 py-2 rounded-lg transition-colors {% if request.path == url_for('manage_targets') %}bg-gray-800 text-white font-semibold{% else %}text-gray-400 hover:bg-gray-850 hover:text-white{% endif %}">Targets</a>
+                    <a href="{{ url_for('view_templates') }}" class="block px-4 py-2 rounded-lg transition-colors {% if request.path == url_for('view_templates') %}bg-gray-800 text-white font-semibold{% else %}text-gray-400 hover:bg-gray-850 hover:text-white{% endif %}">Templates</a>
+                    <a href="{{ url_for('new_campaign') }}" class="block px-4 py-2.5 rounded-lg text-center font-semibold mt-6 transition-all shadow-md {% if request.path == url_for('new_campaign') %}bg-blue-700 text-white shadow-blue-900/30{% else %}bg-blue-600 hover:bg-blue-700 hover:scale-[1.02] text-white shadow-blue-800/20{% endif %}">New Campaign</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop Sidebar -->
+    <div class="hidden md:flex md:w-64 bg-gray-900 text-white flex-col flex-shrink-0 shadow-lg border-r border-gray-800">
+        <div class="p-6 text-2xl font-bold border-b border-gray-800 tracking-tight flex items-center space-x-2">
+            <span>🎣</span> <span>Fishin' Gen</span>
+        </div>
         <nav class="flex-1 p-4 space-y-2">
-            <a href="{{ url_for('dashboard') }}" class="block px-4 py-2 rounded hover:bg-gray-800">Dashboard</a>
-            <a href="{{ url_for('manage_targets') }}" class="block px-4 py-2 rounded hover:bg-gray-800">Targets</a>
-            <a href="{{ url_for('view_templates') }}" class="block px-4 py-2 rounded hover:bg-gray-800">Templates</a>
-            <a href="{{ url_for('new_campaign') }}" class="block px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 mt-4 text-center font-semibold">New Campaign</a>
+            <a href="{{ url_for('dashboard') }}" class="block px-4 py-2 rounded-lg transition-colors {% if request.path == url_for('dashboard') %}bg-gray-800 text-white font-semibold{% else %}text-gray-400 hover:bg-gray-800 hover:text-white{% endif %}">Dashboard</a>
+            <a href="{{ url_for('manage_targets') }}" class="block px-4 py-2 rounded-lg transition-colors {% if request.path == url_for('manage_targets') %}bg-gray-800 text-white font-semibold{% else %}text-gray-400 hover:bg-gray-800 hover:text-white{% endif %}">Targets</a>
+            <a href="{{ url_for('view_templates') }}" class="block px-4 py-2 rounded-lg transition-colors {% if request.path == url_for('view_templates') %}bg-gray-800 text-white font-semibold{% else %}text-gray-400 hover:bg-gray-800 hover:text-white{% endif %}">Templates</a>
+            <a href="{{ url_for('new_campaign') }}" class="block px-4 py-2.5 rounded-lg text-center font-semibold mt-6 transition-all shadow-md {% if request.path == url_for('new_campaign') %}bg-blue-700 text-white shadow-blue-900/30{% else %}bg-blue-600 hover:bg-blue-700 hover:scale-[1.02] text-white shadow-blue-800/20{% endif %}">New Campaign</a>
         </nav>
     </div>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col overflow-hidden">
-        <header class="bg-white shadow px-6 py-4">
-            <h1 class="text-xl font-semibold text-gray-800">{% block header %}Dashboard{% endblock %}</h1>
+        <header class="bg-white shadow px-6 py-4 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">{% block header %}Dashboard{% endblock %}</h1>
         </header>
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
             {% block content %}{% endblock %}
         </main>
     </div>
+
+    <!-- Mobile sidebar script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileSidebar = document.getElementById('mobile-sidebar');
+            const mobileSidebarBackdrop = document.getElementById('mobile-sidebar-backdrop');
+            const mobileSidebarPanel = document.getElementById('mobile-sidebar-panel');
+            const mobileSidebarClose = document.getElementById('mobile-sidebar-close');
+
+            function openSidebar() {
+                mobileSidebar.classList.remove('hidden');
+                // Allow layout repaint, then transition in
+                setTimeout(() => {
+                    mobileSidebarBackdrop.classList.remove('opacity-0');
+                    mobileSidebarBackdrop.classList.add('opacity-100');
+                    mobileSidebarPanel.classList.remove('-translate-x-full');
+                    mobileSidebarPanel.classList.add('translate-x-0');
+                }, 20);
+            }
+
+            function closeSidebar() {
+                mobileSidebarBackdrop.classList.remove('opacity-100');
+                mobileSidebarBackdrop.classList.add('opacity-0');
+                mobileSidebarPanel.classList.remove('translate-x-0');
+                mobileSidebarPanel.classList.add('-translate-x-full');
+                // Hide container after transitions finish (300ms)
+                setTimeout(() => {
+                    mobileSidebar.classList.add('hidden');
+                }, 300);
+            }
+
+            if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openSidebar);
+            if (mobileSidebarClose) mobileSidebarClose.addEventListener('click', closeSidebar);
+            if (mobileSidebarBackdrop) mobileSidebarBackdrop.addEventListener('click', closeSidebar);
+        });
+    </script>
 </body>
 </html>
