@@ -87,10 +87,16 @@ _(Note: The `tracking_id` column in the database is **Indexed**, rather than Uni
    ```bash
    uv run app.py
    ```
-5. Open your browser and navigate to `http://localhost:5000`.
+5. There are 2 ways to proceed:
+- **Version 1** - Absolutely local with _Dry Run_
+
+    Open your browser and navigate to `http://localhost:5000`.
 
 > [!TIP]
 > **Dry Run Mode:** By default, if no SMTP credentials are provided via a `.env` file, the simulator will automatically run in "Dry Run" mode. Instead of actually sending emails, it will save the generated HTML email into a `dry_run_emails/` folder and print the raw HTML to the terminal. You can simply double-click the saved `.html` file to view the email in your browser and test the clicking flow safely!
+
+
+- **Version 2**  - using `serveo` to have a real working demo
 
 >[!note]
 >For a temporary deployment we can use [Serveo](https://serveo.net/), a simple SSH-based tunneling service that exposes your local Flask app to the public internet without changing router settings or firewall rules. It creates a secure tunnel from your machine to a temporary public URL, so external users can reach `http://localhost:5000` while the tunnel is active.
