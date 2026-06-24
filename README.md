@@ -4,7 +4,7 @@
 
 Fishin' Generator is a realistic phishing email simulator designed for corporate security awareness training. It allows security teams to generate and send safe, simulated phishing emails to employees, and tracks engagement (opens and clicks) to identify vulnerabilities in the human firewall.
 
-Instead of just a technical exercise, this is positioned as a **business solution**. It demonstrates a deep understanding of social engineering—the number one attack vector for modern breaches—and provides actionable metrics for training.
+Instead of just a technical exercise, this is positioned as a **business solution**. It demonstrates a deep understanding of social engineering - the number one attack vector for modern breaches - and provides actionable metrics for training.
 
 ---
 
@@ -69,7 +69,7 @@ To track if a user falls for the trap, we dynamically rewrite the links in the e
 3. When the user clicks the "Reset Password" button, their browser navigates to our server.
 4. Our server catches the request, logs a `'Clicked'` event using the `tracking_id`, and redirects the user to the educational training page.
 
-_(Note: The `tracking_id` column in the database is **Indexed**, rather than Unique, allowing us to store multiple events—Sent, Opened, Clicked—under the same ID for fast querying)._
+_(Note: The `tracking_id` column in the database is **Indexed**, rather than Unique, allowing us to store multiple events - Sent, Opened, Clicked - under the same ID for fast querying)._
 
 ---
 
@@ -91,6 +91,21 @@ _(Note: The `tracking_id` column in the database is **Indexed**, rather than Uni
 
 > [!TIP]
 > **Dry Run Mode:** By default, if no SMTP credentials are provided via a `.env` file, the simulator will automatically run in "Dry Run" mode. Instead of actually sending emails, it will save the generated HTML email into a `dry_run_emails/` folder and print the raw HTML to the terminal. You can simply double-click the saved `.html` file to view the email in your browser and test the clicking flow safely!
+
+>[!note]
+>For a temporary deployment we can use [Serveo](https://serveo.net/), a simple SSH-based tunneling service that exposes your local Flask app to the public internet without changing router settings or firewall rules. It creates a secure tunnel from your machine to a temporary public URL, so external users can reach `http://localhost:5000` while the tunnel is active.
+
+```sh
+ssh -R 80:localhost:5000 serveo.net
+```
+
+After running the command a temporary public URL will be printed to your terminal (for example: https://randomsubdomain.serveo.net). Use it as follows:
+
+- Copy the generated URL and open it in a browser to access the dashboard remotely.
+- Send a test campaign (or open a saved dry-run email) and ensure the tracking pixel and rewritten links use the serveo URL (e.g. https://randomsubdomain.serveo.net/track/open/<tracking_id>).
+- Click a tracked link from the email; the server will log the "Clicked" event and redirect to the educational landing page through the same public URL.
+- Remember the tunnel (and its URL) lasts only for the SSH session - closing the terminal ends the public link.
+
 
 ---
 
