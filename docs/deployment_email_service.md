@@ -101,28 +101,76 @@ Ensure that every route in your application (except `/login`, `/setup`, and the 
 
 ## 4. Step-by-Step Deployment Walkthrough
 
-To host the application online, platforms like **Render.com** or **Fly.io** offer convenient environments for hosting Flask services.
+To host the application online, you have several platforms available, each with different storage and scaling architectures. Here are the roadmaps for three popular cloud platforms:
 
-Here is the general workflow to deploy your application to Render:
+### Option A: Render.com (Recommended for SQLite persistence)
+Render is a container-based platform that supports persistent volume disks, making SQLite setup simple and reliable.
 
-### Step 1: Install Gunicorn
-Flask's built-in server is designed for local development only. For production, install `gunicorn` (a WSGI HTTP Server) to run your application.
+1. **Install Gunicorn**: Ensure `gunicorn` is listed in your project dependencies. Do not use Flask's built-in server in production.
+2. **Environment Secrets**: Configure your application to read configuration values (like `SECRET_KEY` and `DATABASE_URL`) from environment variables.
+3. **Mount a Disk**: In the Render dashboard, add a persistent volume disk to your web service (e.g. named `sqlite-db` mounted at `/data`).
+4. **Define Connection**: Set the `DATABASE_URL` environment variable to write inside that disk directory (e.g. `sqlite:////data/phishing.db`).
+5. **Start Command**: Configure the start command in your service settings to run the server with Gunicorn: `gunicorn app:app`.
 
-### Step 2: Configure Environment Secrets
-Ensure that your database URLs, session secret keys, and encryption keys are read from environment variables. Raise an exception during startup if critical security environment variables (like `SECRET_KEY`) are missing.
+### Option B: Railway.app (Excellent alternative for persistent SQLite)
+Railway is also a container-based platform with robust GitHub integration and persistent disk support.
 
-### Step 3: Prepare Persistent Storage
-Since the default SQLite configuration writes to a local file, any redeployment or server restart on cloud providers will typically wipe the database (ephemeral file systems).
-* **Render Persistent Disks**: Configure your service definition to mount a persistent disk directory (e.g., `/data`).
-* **Database Path**: Point your SQLite database URL config to write inside that mounted directory (e.g., `sqlite:////data/phishing.db`) so database entries persist across server updates.
+1. **Create a Service**: Create a new project on Railway and choose "Deploy from GitHub repository".
+2. **Attach a Volume**:
+   * Navigate to your service settings in the Railway dashboard.
+   * Add a persistent storage volume (e.g., mounted at `/data`).
+3. **Configure Environment Variables**:
+   * Set `DATABASE_URL` to point to the volume: `sqlite:////data/phishing.db`.
+   * Set `SECRET_KEY` to a secure random string.
+4. **App Initialization & Port binding**:
+   * Ensure your Flask startup reads the dynamic `$PORT` variable from the environment or relies on Gunicorn which binds automatically.
+   * Create a `Procfile` in the root of your project or specify the start command in the Railway dashboard: `gunicorn app:app`.
 
-### Step 4: Write the Deployment Configuration
-Most modern platforms allow you to define infrastructure-as-code files (such as `render.yaml` or `fly.toml`).
-1. **Build Step**: Define a build command that installs packages from your configuration files (e.g., using `uv pip install`).
-2. **Start Step**: Define a start command that boots the application using Gunicorn.
-3. **Persistent Volume**: Define the path and size for your database volume.
+### Option C: Vercel.com (Serverless - Requires external database)
+Vercel hosts applications using **stateless Serverless Functions**. Because serverless instances spin up and down dynamically, any file written to a local SQLite database file will be **lost** when the function goes idle. 
 
-### Step 5: Connect to Your Git Provider & Launch
-1. Push your security and deployment configuration updates to your repository.
-2. Connect your repository to your cloud provider's dashboard.
-3. Deploy the service, verify that your persistent storage is mounted, and test the `/setup` flow on your live URL to initialize your admin credentials.
+If you wish to deploy to Vercel, you must adapt your architecture:
+
+1. **External Database Required**: You must spin up an external, hosted database (e.g., a free PostgreSQL database on Supabase or Neon) and set `DATABASE_URL` to point to it.
+2. **Postgres Driver**: Install a Python-compatible driver (such as `psycopg2-binary` or `pg8000`) so SQLAlchemy can talk to PostgreSQL.
+3. **Vercel Configuration (`vercel.json`)**:
+   * Create a `vercel.json` configuration file in the project root.
+   * Configure builds to use the Vercel Python builder (`@vercel/python`) pointing to your `app.py` entrypoint.
+   * Configure routes to redirect all incoming traffic to `app.py`.
+4. **WSGI Handler**: Ensure the Flask instance (the `app` object) is exposed at the top level of your `app.py` so Vercel's serverless runtime can access and wrap it.
+
+---
+
+## 📚 Useful Resources
+
+Here are verified documentation links, tutorials, and video guides to help you implement and deploy these security updates:
+
+### 📧 Email Services & Authentication
+* **Mailtrap Sandbox**:
+  * Website: [Mailtrap](https://mailtrap.io/)
+  * Documentation: [Mailtrap Email Testing Sandbox Docs](https://mailtrap.io/email-sandbox/)
+* **Email Protocols (SPF, DKIM, DMARC)**:
+  * Video Guide: [Email Authentication Explained: SPF, DKIM, and DMARC by Office365Concepts (YouTube)](https://www.youtube.com/watch?v=203N8aR2yXg)
+
+### 🔒 User Authentication & Security
+* **Session Management**:
+  * Documentation: [Flask-Login official documentation](https://flask-login.readthedocs.io/)
+* **Password Hashing**:
+  * Documentation: [Werkzeug Password Hashing Utilities](https://werkzeug.palletsprojects.com/)
+* **Full-Stack Tutorial Video (Highly Recommended)**:
+  * Video Playlist: [Corey Schafer's Flask Web Development Series (YouTube)](https://www.youtube.com/playlist?list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH) – Sections 5 (Databases), 6 (User Authentication), and 11 (Deployment) walk step-by-step through configuring models and Flask-Login.
+
+### 🛡️ Abuse Prevention & Rate Limiting
+* **Rate Limiting**:
+  * Documentation: [Flask-Limiter official documentation](https://flask-limiter.readthedocs.io/)
+
+### 🚀 Production Deployment & Hosting
+* **Render.com**:
+  * Guide: [Deploy a Flask App on Render](https://render.com/docs/deploy-flask)
+  * Storage: [Render Persistent Disks Documentation](https://render.com/docs/disks)
+* **Railway.app**:
+  * Guide: [Railway Guides Hub](https://railway.app/guides)
+* **Vercel.com**:
+  * Guide: [Vercel Python Runtime Serverless Docs](https://vercel.com/docs/functions/runtimes/python)
+* **Fly.io**:
+  * Guide: [Python on Fly.io Documentation](https://fly.io/docs/languages-and-frameworks/python/)
