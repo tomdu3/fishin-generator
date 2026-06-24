@@ -20,10 +20,13 @@ Instead of just a technical exercise, this is positioned as a **business solutio
 ## ✨ Core Features
 
 ### 1. Modern Dashboard
+
 The simulator features a responsive, professional dashboard built with Tailwind CSS. Security teams can view high-level metrics (Total Campaigns, Total Targets) and see the real-time status of their tests.
 
 ### 2. Pre-Loaded Social Engineering Templates
+
 The database comes seeded with 12 foundational phishing templates designed to mimic real-world attacks. These templates exploit specific emotional triggers:
+
 - **Urgency/Fear**: e.g., "Credential Reset Notification" or "MFA Fatigue Bypass".
 - **Authority**: e.g., "Executive Wire Transfer Request".
 - **Curiosity/Familiarity**: e.g., "HR Policy Document" or "Fake File Share".
@@ -31,6 +34,7 @@ The database comes seeded with 12 foundational phishing templates designed to mi
 Each template features a customized, context-aware **Sender Display Name** stored at the template level (e.g. `"Barclays Bank Security"`, `"Zoom Support"`, or `"Human Resources"`), which dynamically pairs with your sending infrastructure to simulate high-fidelity phishing headers.
 
 ### 3. Safe Educational Landing Page
+
 If an employee falls for the simulation and clicks a malicious link, they are safely redirected to a local `phished.html` landing page. This page breaks the news gently and provides immediate, constructive feedback on how they could have spotted the phishing attempt (e.g., checking the sender domain, hovering over links).
 
 ---
@@ -40,26 +44,32 @@ If an employee falls for the simulation and clicks a malicious link, they are sa
 The core logic of the project relies on tying specific actions back to a single user through a unique identifier. Here is exactly how the lifecycle of an event is tracked:
 
 ### Phase 1: The "Sent" Event
+
 When a campaign is launched, the Flask backend (`app.py`) iterates through the selected targets.
+
 1. It generates a unique UUID (`tracking_id`) for that specific target.
 2. It inserts a row into the `TrackingEvent` database table with `event_type='Sent'`.
 3. It passes this `tracking_id` to the `mailer.py` script.
 
 ### Phase 2: The "Opened" Event (Pixel Tracking)
+
 To know if a user opened the email, we use a **tracking pixel**:
-1. `mailer.py` appends an invisible HTML `<img>` tag to the bottom of the email: 
+
+1. `mailer.py` appends an invisible HTML `<img>` tag to the bottom of the email:
    `<img src="http://our-server/track/open/<tracking_id>.gif" width="1" height="1" style="display:none;" />`
 2. When the employee's email client renders the HTML, it automatically makes an HTTP `GET` request to our server to download that image.
 3. Our server catches that request, looks up the `tracking_id`, logs an `'Opened'` event in the database, and returns a transparent 1x1 pixel so the user sees nothing broken.
 
 ### Phase 3: The "Clicked" Event (Link Rewriting)
+
 To track if a user falls for the trap, we dynamically rewrite the links in the email:
+
 1. The templates use a placeholder `{{ tracking_url }}` for their call-to-action buttons.
 2. During email generation, Jinja replaces this with a custom URL: `http://our-server/track/click/<tracking_id>`.
 3. When the user clicks the "Reset Password" button, their browser navigates to our server.
 4. Our server catches the request, logs a `'Clicked'` event using the `tracking_id`, and redirects the user to the educational training page.
 
-*(Note: The `tracking_id` column in the database is **Indexed**, rather than Unique, allowing us to store multiple events—Sent, Opened, Clicked—under the same ID for fast querying).*
+_(Note: The `tracking_id` column in the database is **Indexed**, rather than Unique, allowing us to store multiple events—Sent, Opened, Clicked—under the same ID for fast querying)._
 
 ---
 
@@ -93,7 +103,7 @@ erDiagram
     TARGET ||--o{ TRACKING_EVENT : "has many"
     TEMPLATE ||--o{ CAMPAIGN : "used in"
     CAMPAIGN ||--o{ TRACKING_EVENT : "generates"
-    
+
     TARGET {
         int id PK
         string name
@@ -126,36 +136,52 @@ erDiagram
 ### Table Definitions
 
 #### Target
-| Column | Type | Constraints |
-|---|---|---|
-| id | Integer | Primary Key |
-| name | String(100) | Not Null |
-| email | String(120) | Unique, Not Null |
+
+| Column | Type        | Constraints      |
+| ------ | ----------- | ---------------- |
+| id     | Integer     | Primary Key      |
+| name   | String(100) | Not Null         |
+| email  | String(120) | Unique, Not Null |
 
 #### Template
-| Column | Type | Constraints |
-|---|---|---|
-| id | Integer | Primary Key |
-| name | String(100) | Not Null |
-| sender_name | String(100) | Nullable |
-| subject | String(200) | Not Null |
-| body_html | Text | Not Null |
+
+| Column      | Type        | Constraints |
+| ----------- | ----------- | ----------- |
+| id          | Integer     | Primary Key |
+| name        | String(100) | Not Null    |
+| sender_name | String(100) | Nullable    |
+| subject     | String(200) | Not Null    |
+| body_html   | Text        | Not Null    |
 
 #### Campaign
-| Column | Type | Constraints |
-|---|---|---|
-| id | Integer | Primary Key |
-| name | String(100) | Not Null |
-| template_id | Integer | Foreign Key |
-| created_at | DateTime | Not Null |
-| status | String(20) | Not Null |
+
+| Column      | Type        | Constraints |
+| ----------- | ----------- | ----------- |
+| id          | Integer     | Primary Key |
+| name        | String(100) | Not Null    |
+| template_id | Integer     | Foreign Key |
+| created_at  | DateTime    | Not Null    |
+| status      | String(20)  | Not Null    |
 
 #### TrackingEvent
-| Column | Type | Constraints |
-|---|---|---|
-| id | Integer | Primary Key |
-| campaign_id | Integer | Foreign Key |
-| target_id | Integer | Foreign Key |
-| tracking_id | String(36) | Indexed |
-| event_type | String(20) | Not Null |
-| timestamp | DateTime | Not Null |
+
+| Column      | Type       | Constraints |
+| ----------- | ---------- | ----------- |
+| id          | Integer    | Primary Key |
+| campaign_id | Integer    | Foreign Key |
+| target_id   | Integer    | Foreign Key |
+| tracking_id | String(36) | Indexed     |
+| event_type  | String(20) | Not Null    |
+| timestamp   | DateTime   | Not Null    |
+
+---
+
+## 🔮 Future Features
+
+To transition this simulator from a local training exercise to a production-ready cloud service, the following roadmap features are planned:
+
+1. **User Authentication & Authorization**: Securing the administration dashboard behind a secure login flow using Flask-Login and cryptographically hashed passwords.
+2. **Abuse Prevention Safeguards**: Restricting outbound campaigns to verified recipient domains, and adding rate limiting to campaign creation to prevent spam abuse.
+3. **Decoupled SMTP Settings**: Migrating email credentials out of environment variables and into user settings, allowing administrators to utilize their own secure email infrastructure.
+
+For a detailed step-by-step walkthrough on how to implement and deploy these updates, refer to the [Deployment and Email Security Roadmap](./docs/deployment_email_service.md).
