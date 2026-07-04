@@ -3,16 +3,16 @@
 <table class="min-w-full divide-y divide-gray-200">
     <thead>
         <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Type</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+            <th class="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
+            <th class="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Type</th>
+            <th class="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
         </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
         {% for e in events %}
         <tr>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ e.target.name }} ({{ e.target.email }})</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <td class="px-3 sm:px-4 lg:px-6 py-4 text-sm font-medium text-gray-900 max-w-[200px] sm:max-w-[300px] lg:max-w-md truncate" title="{{ e.target.name }} ({{ e.target.email }})">{{ e.target.name }} ({{ e.target.email }})</td>
+            <td class="px-3 sm:px-4 lg:px-6 py-4 whitespace-nowrap text-sm">
                 {% if e.event_type == 'Sent' %}
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Sent</span>
                 {% elif e.event_type == 'Opened' %}
@@ -21,7 +21,7 @@
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Clicked</span>
                 {% endif %}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ e.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td class="px-3 sm:px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ e.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
         </tr>
         {% endfor %}
     </tbody>
