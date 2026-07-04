@@ -87,32 +87,60 @@ _(Note: The `tracking_id` column in the database is **Indexed**, rather than Uni
    ```bash
    uv run app.py
    ```
+
 ---
+
 5. There are 2 ways to proceed:
+
 - **Version 1** - Absolutely local with _Dry Run_
 
-    Open your browser and navigate to `http://localhost:5000`.
+  Open your browser and navigate to `http://localhost:5000`.
 
 > [!TIP]
 > **Dry Run Mode:** By default, if no SMTP credentials are provided via a `.env` file, the simulator will automatically run in "Dry Run" mode. Instead of actually sending emails, it will save the generated HTML email into a `dry_run_emails/` folder and print the raw HTML to the terminal. You can simply double-click the saved `.html` file to view the email in your browser and test the clicking flow safely!
 
 ---
-- **Version 2**  - using `serveo` to have a real working demo
 
->[!note]
->For a temporary deployment we can use [Serveo](https://serveo.net/), a simple SSH-based tunneling service that exposes your local Flask app to the public internet without changing router settings or firewall rules. It creates a secure tunnel from your machine to a temporary public URL, so external users can reach `http://localhost:5000` while the tunnel is active.
+- **Version 2** - using `serveo` to have a real working demo
+
+> [!note]
+> For a temporary deployment we can use [Serveo](https://serveo.net/), a simple SSH-based tunneling service that exposes your local Flask app to the public internet without changing router settings or firewall rules. It creates a secure tunnel from your machine to a temporary public URL, so external users can reach `http://localhost:5000` while the tunnel is active.
 
 ```sh
 ssh -R 80:localhost:5000 serveo.net
 ```
 
-After running the command a temporary public URL will be printed to your terminal (for example: https://randomsubdomain.serveo.net). Use it as follows:
+After running the command a temporary public URL will be printed to your terminal (for example: https://randomsubdomain.serveo.net).
+
+> [!note]
+> For some reason, [serveo.net](https://serveo.net/) may not work as expected, so I recommend using [Cloudflared](https://github.com/cloudflare/cloudflared) instead. Install it on your Linux machine first:
+
+```sh
+curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
+echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared focal main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
+sudo apt-get update && sudo apt-get install cloudflared
+```
+
+or on Arch Linux:
+
+```
+sudo pacman -S cloudflared
+```
+
+Then run the following command:
+
+```
+cloudflared tunnel --url http://localhost:5000
+```
+
+> Copy the generated URL and open it in a browser to access the dashboard remotely. It will be something like `https://randomname.trycloudflare.com` and it will work for 2 hours or until you close the terminal. The link will appear after the words `Your quick Tunnel has been created! Visit it at (it may take some time to be reachable): `
+
+Use it as follows:
 
 - Copy the generated URL and open it in a browser to access the dashboard remotely.
-- Send a test campaign (or open a saved dry-run email) and ensure the tracking pixel and rewritten links use the serveo URL (e.g. https://randomsubdomain.serveo.net/track/open/<tracking_id>).
+- Send a test campaign (or open a saved dry-run email) and ensure the tracking pixel and rewritten links use the serveo/cloudflared URL (e.g. https://randomsubdomain.serveo.net/track/open/<tracking_id>).
 - Click a tracked link from the email; the server will log the "Clicked" event and redirect to the educational landing page through the same public URL.
 - Remember the tunnel (and its URL) lasts only for the SSH session - closing the terminal ends the public link.
-
 
 ---
 
