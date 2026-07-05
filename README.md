@@ -123,13 +123,13 @@ sudo apt-get update && sudo apt-get install cloudflared
 
 or on Arch Linux:
 
-```
+```sh
 sudo pacman -S cloudflared
 ```
 
 Then run the following command:
 
-```
+```sh
 cloudflared tunnel --url http://localhost:5000
 ```
 
