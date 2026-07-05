@@ -16,9 +16,19 @@
         <tr>
             <td class="px-3 lg:px-4 py-4 text-sm font-medium text-gray-900 max-w-[100px] sm:max-w-[150px] lg:max-w-[180px] xl:max-w-xs truncate" title="{{ c.name }}">{{ c.name }}</td>
             <td class="px-3 lg:px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                {% if c.status == 'Active' %}
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                    Active
+                </span>
+                {% elif c.status == 'Ended' %}
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                    Ended
+                </span>
+                {% else %}
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
                     {{ c.status }}
                 </span>
+                {% endif %}
             </td>
             <td class="px-3 lg:px-4 py-4 whitespace-nowrap text-sm text-gray-500 font-semibold">{{ c.open_count }}</td>
             <td class="px-3 lg:px-4 py-4 whitespace-nowrap text-sm text-red-600 font-bold">{{ c.click_count }}</td>

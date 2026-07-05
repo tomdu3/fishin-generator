@@ -1,0 +1,27 @@
+<div id="campaign-status-panel" class="flex items-center space-x-3">
+    {% if campaign.status == 'Active' %}
+        <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+            Active
+        </span>
+        <button hx-post="{{ url_for('toggle_campaign_status', id=campaign.id) }}"
+                hx-target="#campaign-status-panel"
+                hx-swap="outerHTML"
+                class="px-4 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md shadow-sm transition duration-150 ease-in-out cursor-pointer border-0">
+            End Campaign
+        </button>
+    {% elif campaign.status == 'Ended' %}
+        <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+            Ended
+        </span>
+        <button hx-post="{{ url_for('toggle_campaign_status', id=campaign.id) }}"
+                hx-target="#campaign-status-panel"
+                hx-swap="outerHTML"
+                class="px-4 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md shadow-sm transition duration-150 ease-in-out cursor-pointer border-0">
+            Reactivate Campaign
+        </button>
+    {% else %}
+        <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+            {{ campaign.status }}
+        </span>
+    {% endif %}
+</div>

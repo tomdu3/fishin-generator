@@ -3,9 +3,7 @@
 {% block content %}
 <div class="mb-6 flex justify-between items-center">
     <a href="{{ url_for('dashboard') }}" class="text-blue-600 hover:underline">&larr; Back to Dashboard</a>
-    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-        {{ campaign.status }}
-    </span>
+    {% include 'partials/campaign_status_panel.html' %}
 </div>
 
 <div id="campaign-stats" 
