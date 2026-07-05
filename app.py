@@ -78,6 +78,23 @@ def delete_campaign(id):
         return render_template('partials/campaign_list.html', campaigns=campaigns)
     return redirect(url_for('dashboard'))
 
+def send_campaign_emails(campaign, targets):
+    template = campaign.template
+    for target in targets:
+        # Create tracking event (Sent)
+        event = TrackingEvent(campaign_id=campaign.id, target_id=target.id, event_type='Sent')
+        db.session.add(event)
+        db.session.commit() # Commit to get tracking_id generated
+
+        tracking_url = url_for('track_click', tracking_id=event.tracking_id, _external=True)
+        tracking_pixel_url = url_for('track_open', tracking_id=event.tracking_id, _external=True)
+
+        html_content = generate_email_content(template.body_html, tracking_url, tracking_pixel_url)
+        
+        # For simulating realism, we replace template variables with actual target name
+        # Note: we are just sending the rendered template, any [Service Name] etc could be parameterized in a real system.
+        send_phishing_email(target.email, template.subject, html_content, sender_name=template.sender_name)
+
 @app.route('/campaigns/new', methods=['GET', 'POST'])
 def new_campaign():
     if request.method == 'POST':
@@ -90,24 +107,9 @@ def new_campaign():
             db.session.add(campaign)
             db.session.commit()
 
-            template = db.session.get(Template, template_id)
-            
-            for t_id in target_ids:
-                target = db.session.get(Target, t_id)
-                if target:
-                    # Create tracking event (Sent)
-                    event = TrackingEvent(campaign_id=campaign.id, target_id=target.id, event_type='Sent')
-                    db.session.add(event)
-                    db.session.commit() # Commit to get tracking_id generated
-
-                    tracking_url = url_for('track_click', tracking_id=event.tracking_id, _external=True)
-                    tracking_pixel_url = url_for('track_open', tracking_id=event.tracking_id, _external=True)
-
-                    html_content = generate_email_content(template.body_html, tracking_url, tracking_pixel_url)
-                    
-                    # For simulating realism, we replace template variables with actual target name
-                    # Note: we are just sending the rendered template, any [Service Name] etc could be parameterized in a real system.
-                    send_phishing_email(target.email, template.subject, html_content, sender_name=template.sender_name)
+            targets = [db.session.get(Target, t_id) for t_id in target_ids]
+            targets = [t for t in targets if t is not None]
+            send_campaign_emails(campaign, targets)
                     
             return redirect(url_for('dashboard'))
 
@@ -141,6 +143,29 @@ def campaign_events(id):
     events = TrackingEvent.query.filter_by(campaign_id=id).order_by(TrackingEvent.timestamp.desc()).all()
     return render_template('partials/event_list.html', events=events)
 
+@app.route('/campaigns/<int:id>/toggle-status', methods=['POST'])
+def toggle_campaign_status(id):
+    campaign = db.get_or_404(Campaign, id)
+    if campaign.status == 'Active':
+        campaign.status = 'Ended'
+        db.session.commit()
+    elif campaign.status == 'Ended':
+        campaign.status = 'Active'
+        db.session.commit()
+        
+        # Resend the emails again to all targets who were originally sent emails in this campaign
+        # Find all distinct targets who have had a Sent tracking event for this campaign
+        sent_events = TrackingEvent.query.filter_by(campaign_id=campaign.id, event_type='Sent').all()
+        target_ids = list(set(event.target_id for event in sent_events))
+        targets = [db.session.get(Target, t_id) for t_id in target_ids]
+        targets = [t for t in targets if t is not None]
+        
+        send_campaign_emails(campaign, targets)
+        
+    if request.headers.get('HX-Request'):
+        return render_template('partials/campaign_status_panel.html', campaign=campaign)
+    return redirect(url_for('campaign_details', id=campaign.id))
+
 @app.route('/track/open/<tracking_id>.gif')
 def track_open(tracking_id):
     # Transparent 1x1 GIF
@@ -148,7 +173,7 @@ def track_open(tracking_id):
     
     # Robust lookup: find ANY event with this tracking_id to get campaign/target info
     event = TrackingEvent.query.filter_by(tracking_id=tracking_id).first()
-    if event:
+    if event and event.campaign.status == 'Active':
         open_event = TrackingEvent(
             campaign_id=event.campaign_id, 
             target_id=event.target_id, 
@@ -159,14 +184,17 @@ def track_open(tracking_id):
         db.session.commit()
         print(f"Open tracked for target {event.target_id} in campaign {event.campaign_id}")
     else:
-        print(f"Open tracking failed: tracking_id {tracking_id} not found")
+        if not event:
+            print(f"Open tracking failed: tracking_id {tracking_id} not found")
+        else:
+            print(f"Open tracking ignored: campaign {event.campaign_id} status is {event.campaign.status}")
         
     return send_file(BytesIO(pixel_data), mimetype='image/gif')
 
 @app.route('/track/click/<tracking_id>')
 def track_click(tracking_id):
     event = TrackingEvent.query.filter_by(tracking_id=tracking_id).first()
-    if event:
+    if event and event.campaign.status == 'Active':
         click_event = TrackingEvent(
             campaign_id=event.campaign_id, 
             target_id=event.target_id, 
@@ -177,7 +205,10 @@ def track_click(tracking_id):
         db.session.commit()
         print(f"Click tracked for target {event.target_id} in campaign {event.campaign_id}")
     else:
-        print(f"Click tracking failed: tracking_id {tracking_id} not found")
+        if not event:
+            print(f"Click tracking failed: tracking_id {tracking_id} not found")
+        else:
+            print(f"Click tracking ignored: campaign {event.campaign_id} status is {event.campaign.status}")
         
     return render_template('phished.html')
 
