@@ -37,6 +37,12 @@ Each template features a customized, context-aware **Sender Display Name** store
 
 If an employee falls for the simulation and clicks a malicious link, they are safely redirected to a local `phished.html` landing page. This page breaks the news gently and provides immediate, constructive feedback on how they could have spotted the phishing attempt (e.g., checking the sender domain, hovering over links).
 
+### 4. Campaign Lifecycle Management (Active/Ended States)
+
+Security teams can end campaigns to stop active phishing simulations when the testing window closes.
+- **Suspended Tracking**: When a campaign is "Ended", all subsequent clicks and opens from that campaign's emails are ignored, preventing late clicks from skewing active simulation metrics.
+- **Reactivation & Email Resending**: If needed, campaigns can be reactivated with a single click. This changes the status back to "Active" and triggers automatic email resending to all original targets with new tracking IDs, continuing the simulation.
+
 ---
 
 ## 🔍 Deep Dive: The Tracking Mechanism
