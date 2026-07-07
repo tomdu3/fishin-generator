@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import datetime, timezone
 from flask import Flask, render_template, request, redirect, url_for, send_file
 from models import db, Target, Template, Campaign, TrackingEvent
@@ -170,6 +171,8 @@ def toggle_campaign_status(id):
 def track_open(tracking_id):
     # Transparent 1x1 GIF
     pixel_data = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
+    
+    time.sleep(1)
     
     # Robust lookup: find ANY event with this tracking_id to get campaign/target info
     event = TrackingEvent.query.filter_by(tracking_id=tracking_id).first()
