@@ -177,6 +177,21 @@ def track_open(tracking_id):
     # Robust lookup: find ANY event with this tracking_id to get campaign/target info
     event = TrackingEvent.query.filter_by(tracking_id=tracking_id).first()
     if event and event.campaign.status == 'Active':
+        # Prevent automated email pre-fetches/scans from registering as immediate opens
+        sent_event = TrackingEvent.query.filter_by(tracking_id=tracking_id, event_type='Sent').first()
+        if sent_event and not app.config.get('TESTING'):
+            sent_time = sent_event.timestamp
+            if sent_time.tzinfo is not None:
+                current_time = datetime.now(timezone.utc)
+            else:
+                current_time = datetime.now(timezone.utc).replace(tzinfo=None)
+            
+            elapsed = (current_time - sent_time).total_seconds()
+            # If requested within 5 seconds of being sent, ignore it as a pre-fetch
+            if elapsed < 5:
+                print(f"Open tracking ignored: request received {elapsed:.2f}s after sending (likely automated email scanner/pre-fetch)")
+                return send_file(BytesIO(pixel_data), mimetype='image/gif')
+
         open_event = TrackingEvent(
             campaign_id=event.campaign_id, 
             target_id=event.target_id, 
