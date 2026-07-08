@@ -65,6 +65,7 @@ To know if a user opened the email, we use a **tracking pixel**:
    `<img src="http://our-server/track/open/<tracking_id>.gif" width="1" height="1" style="display:none;" />`
 2. When the employee's email client renders the HTML, it automatically makes an HTTP `GET` request to our server to download that image.
 3. Our server catches that request, looks up the `tracking_id`, logs an `'Opened'` event in the database, and returns a transparent 1x1 pixel so the user sees nothing broken.
+   - **Anti-Scanner Protection**: To prevent automated email security gateways and pre-fetch scanners from registering false `Opened` events immediately upon delivery, the server evaluates the elapsed time since the `Sent` event. If a tracking request is received within **5 seconds** of the email being sent, it is ignored as a security pre-fetch scan.
 
 ### Phase 3: The "Clicked" Event (Link Rewriting)
 
