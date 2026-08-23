@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | Fishin' Generator 🎣</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div class="max-w-3xl w-full bg-gray-800/90 backdrop-blur border border-gray-700/80 rounded-2xl shadow-2xl overflow-hidden">
+        <!-- Hero Image Container -->
+        <div class="relative w-full h-64 sm:h-80 md:h-96 overflow-hidden bg-gray-950">
+            <img 
+                src="{{ url_for('static', filename='img/project.png') }}" 
+                alt="Fishin' Generator Artwork" 
+                class="w-full h-full object-cover object-center transform transition-transform duration-700 hover:scale-105"
+            />
+            <!-- Gradient Overlay for smooth transition -->
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-800 via-gray-900/30 to-transparent"></div>
+            
+            <!-- Badge over hero -->
+            <div class="absolute top-4 left-4 sm:top-6 sm:left-6">
+                <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold bg-red-500/90 text-white shadow-lg backdrop-blur-sm border border-red-400/40 tracking-wider uppercase">
+                    404 Error
+                </span>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="p-6 sm:p-10 text-center">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">
+                Empty line, no bite! 🎣
+            </h1>
+            <p class="text-base sm:text-lg text-gray-300 max-w-xl mx-auto mb-8 leading-relaxed">
+                The page or resource you are looking for has slipped off the hook, moved, or never existed in the first place.
+            </p>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <a href="{{ url_for('dashboard') }}" 
+                   class="inline-flex items-center px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm sm:text-base shadow-lg shadow-blue-900/40 hover:shadow-blue-800/60 hover:-translate-y-0.5 transition-all duration-200">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Back to Dashboard
+                </a>
+                <a href="{{ url_for('view_templates') }}" 
+                   class="inline-flex items-center px-6 py-3 rounded-xl bg-gray-700 hover:bg-gray-600 text-gray-200 font-medium text-sm sm:text-base border border-gray-600 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                    </svg>
+                    View Templates
+                </a>
+            </div>
+
+            <!-- Footer note -->
+            <div class="mt-8 pt-6 border-t border-gray-700/60 text-xs sm:text-sm text-gray-400">
+                <span>Fishin' Generator</span> &bull; <span>Stay sharp, verify every link</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
